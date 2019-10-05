@@ -4,7 +4,7 @@
 //
 console.log("@Content:Loading");
 
-var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報"];
+var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday"];
 var ClipboardBuffer = false;
 
 //-----------------------------------------------------------------------------
@@ -21,6 +21,25 @@ function GetMetaData(key1, value1, key2) {
     result = document.querySelector(select)[key2];
   } catch (e) {
   }
+  return result;
+}
+
+function NormalizeDateString(tstr) {
+  var result = tstr;
+  var p = tstr.indexOf(" ");
+  if (p == -1) {
+    var p = tstr.indexOf("T");
+  }
+  if (p != -1) {
+    result = tstr.substring(0, p);
+  }
+  result = result.replace(/\//g, "-");
+  return result;
+}
+
+function NormalizeTitleString(tstr, tag = "|") {
+  var tlist = tstr.split(tag);
+  result = tlist[0].trim();
   return result;
 }
 
@@ -68,6 +87,8 @@ class 中央通訊社 {
     info.Title = document.querySelector('meta[property="og:title"]')['content'];
     info.URL = document.querySelector('meta[property="og:url"]')['content'];
     info.Date = document.querySelector('meta[itemprop="datePublished"]')['content'];
+    info.Date = NormalizeDateString(info.Date);
+    info.Title = NormalizeTitleString(info.Title, "|");
     return info;
   }
 }
@@ -91,6 +112,8 @@ class 經濟日報 {
     info.Title = document.querySelector('meta[property="og:title"]')['content'];
     info.URL = document.querySelector('meta[property="og:url"]')['content'];
     info.Date = document.querySelector('meta[name="date"]')['content'];
+    info.Date = NormalizeDateString(info.Date);
+    info.Title = NormalizeTitleString(info.Title);
     return info;
   }
 }
@@ -113,6 +136,8 @@ class 中時電子報 {
     info.Title = document.querySelector('meta[property="og:title"]')['content'];
     info.URL = document.querySelector('meta[property="og:url"]')['content'];
     info.Date = document.querySelector('meta[name="pubdate"]')['content'];      
+    info.Date = NormalizeDateString(info.Date);
+    info.Title = NormalizeTitleString(info.Title);
     return info;
   }
 }
@@ -136,29 +161,92 @@ class 自由電子報 {
     info.Title = document.querySelector('meta[property="og:title"]')['content'];
     info.URL = document.querySelector('meta[property="og:url"]')['content'];
     info.Date = document.querySelector('meta[name="pubdate"]')['content'];      
+    info.Date = NormalizeDateString(info.Date);
+    info.Title = NormalizeTitleString(info.Title, "-");
+    return info;
+  }
+}
+
+class TechNews {
+  constructor() {
+    this.domain_name = "technews.tw";
+  }
+  
+  Test() {
+    var st = false;
+    var url = window.location.href;
+    if (url.indexOf(this.domain_name) != -1) {
+      st = true;
+    }
+    return st;
+  }
+  
+  GetInfo() {
+    var info = {};  
+    info.Site = document.querySelector('meta[property="og:site_name"]')['content'];
+    info.Title = document.querySelector('meta[property="og:title"]')['content'];
+    info.URL = document.querySelector('meta[property="og:url"]')['content'];
+    var url = info.URL;
+    var tag = this.domain_name;
+    var p1 = url.indexOf(tag)+tag.length+1;
+    info.Date = url.substring(p1, p1+10); 
+    info.Date = NormalizeDateString(info.Date);
+    info.Title = NormalizeTitleString(info.Title);
+    return info;
+  }
+}
+
+class ETtoday {
+  constructor() {
+    this.domain_name = "ettoday.net";
+  }
+  
+  Test() {
+    var st = false;
+    var url = window.location.href;
+    if (url.indexOf(this.domain_name) != -1) {
+      st = true;
+    }
+    return st;
+  }
+  
+  GetInfo() {
+    var info = {};  
+    info.Site = document.querySelector('meta[property="og:site_name"]')['content'];
+    info.Title = document.querySelector('meta[property="og:title"]')['content'];
+    info.URL = document.querySelector('meta[property="og:url"]')['content'];
+    info.Date = document.querySelector('meta[name="pubdate"]')['content'];      
+    info.Date = NormalizeDateString(info.Date);
+    info.Title = NormalizeTitleString(info.Title);
     return info;
   }
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {    
   document.execCommand('copy');
-  console.log("@Content");
+  //
+  // Get Information from News Class
+  //
   var info = false;    
   for (let item of NewsSiteList) {
-    //console.log(item);
     var nobj = eval("new " + item + "()");
     if (nobj.Test()) {
       info = nobj.GetInfo();
       break;
     }
   } 
-  console.log(info);
-  if (info !== false) {
-    
+  //
+  // Generate HTML formated data then set to clipboard
+  //
+  if (info !== false) {    
     ClipboardBuffer = sprintf("%s, <a href='%s'>%s</a>", info.Date, info.URL, info.Title);
     document.execCommand('copy');
   }  
+  //
+  // Sample Code
+  //
   //console.log(sender.tab ? "from a content script:" + sender.tab.url : "from the extension");  
-  if (request.greeting == "hello")
+  if (request.greeting == "hello") {
     sendResponse({farewell: "goodbye"});
+  }    
 });
