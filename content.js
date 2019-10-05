@@ -4,7 +4,7 @@
 //
 console.log("@Content:Loading");
 
-var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday"];
+var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday"];
 var ClipboardBuffer = false;
 
 //-----------------------------------------------------------------------------
@@ -222,8 +222,59 @@ class ETtoday {
   }
 }
 
+class NowNews {
+  constructor() {
+    this.domain_name = "nownews.com";
+  }
+  
+  Test() {
+    var st = false;
+    var url = window.location.href;
+    if (url.indexOf(this.domain_name) != -1) {
+      st = true;
+    }
+    return st;
+  }
+
+  GetInfo() {
+    var info = {};  
+    info.Site = document.querySelector('meta[property="og:site_name"]')['content'];
+    info.Title = document.querySelector('meta[property="og:title"]')['content'];
+    info.URL = document.querySelector('meta[property="og:url"]')['content'];
+    info.Date = document.querySelector('meta[name="publishedTime"]')['content'];      
+    info.Date = NormalizeDateString(info.Date);
+    info.Title = NormalizeTitleString(info.Title);
+    return info;
+  }
+}
+
+class BusinessToday {
+  constructor() {
+    this.domain_name = "businesstoday.com.tw";
+  }
+  
+  Test() {
+    var st = false;
+    var url = window.location.href;
+    if (url.indexOf(this.domain_name) != -1) {
+      st = true;
+    }
+    return st;
+  }
+
+  GetInfo() {
+    var info = {};  
+    info.Site = "今周刊";
+    info.Title = document.querySelector('meta[property="og:title"]')['content'];
+    info.URL = document.querySelector('meta[property="og:url"]')['content'];
+    info.Date = document.querySelector('meta[property="article:published_time"]')['content'];   
+    info.Date = NormalizeDateString(info.Date);
+    info.Title = NormalizeTitleString(info.Title, "-");
+    return info;
+  }
+}
+
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {    
-  document.execCommand('copy');
   //
   // Get Information from News Class
   //
@@ -247,6 +298,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   //
   //console.log(sender.tab ? "from a content script:" + sender.tab.url : "from the extension");  
   if (request.greeting == "hello") {
-    sendResponse({farewell: "goodbye"});
+    sendResponse({farewell: "goodbye", info: info});
   }    
 });
