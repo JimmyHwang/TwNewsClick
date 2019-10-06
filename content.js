@@ -5,7 +5,7 @@
 console.log("@Content:Loading");
 
 var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", 
-                    "財訊", "TVBS", "COOL3C", "UDN", "CNYES"];
+                    "財訊", "TVBS", "COOL3C", "UDN", "CNYES", "CMoney", "Storm", "SETN", "BuzzOrange", "NewTalk"];
 var ClipboardBuffer = false;
 
 //-----------------------------------------------------------------------------
@@ -95,7 +95,16 @@ class NewsBaseClass {
     }
     info.Title = GetMetaData("property", "og:title", "content");
     info.URL = GetMetaData("property", "og:url", "content");
-    info.Date = GetMetaData(this.date_attribute_key, this.date_attribute_value, "content");    
+    info.Date = GetMetaData(this.date_attribute_key, this.date_attribute_value, "content");
+    if (info.Date == false) {
+      info.Date = GetMetaData("itemprop", "datePublished", "content");
+    }
+    if (info.Date == false) {
+      info.Date = GetMetaData("name", "date", "content");
+    }
+    if (info.Date == false) {
+      info.Date = GetMetaData("name", "pubdate", "content");
+    }
     if (info.Date != false) {
       info.Date = NormalizeDateString(info.Date);
     }
@@ -248,6 +257,47 @@ class CNYES extends NewsBaseClass {
     this.site_name = "鉅亨網";
     this.domain_name = "news.cnyes.com";
     this.title_break = "|";
+  }
+}
+
+class CMoney extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "CMoney 投資網誌";
+    this.domain_name = "cmoney.tw";
+  }
+}
+
+class Storm extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "風傳媒";
+    this.domain_name = "storm.mg";
+    this.title_break = "-";
+  }
+}
+
+class SETN extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "三立新聞網";
+    this.domain_name = "setn.com";
+  }
+}
+
+class BuzzOrange extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "科技報橘";
+    this.domain_name = "buzzorange.com";
+  }
+}
+
+class NewTalk extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "新頭殼";
+    this.domain_name = "newtalk.tw";
   }
 }
 
