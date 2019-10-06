@@ -6,7 +6,7 @@ console.log("@Content:Loading");
 
 var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", 
                     "財訊", "TVBS", "COOL3C", "UDN", "CNYES", "CMoney", "Storm", "SETN", "BuzzOrange", "NewTalk", "BusinessWeekly", 
-                    "中廣新聞網", "AppleDaily", "NextMag", "MoneyDJ"];
+                    "中廣新聞網", "AppleDaily", "NextMag", "MoneyDJ", "BusinessNext"];
 var ClipboardBuffer = false;
 
 //-----------------------------------------------------------------------------
@@ -417,7 +417,7 @@ class AppleDaily extends NewsBaseClass {
 
   GetInfo() {
     var info = super.GetInfo();
-    date_string = GetDateFromLdJson();
+    var date_string = GetDateFromLdJson();
     if (date_string != false) {
       info.Date = NormalizeDateString(date_string);      
     } else {
@@ -436,7 +436,7 @@ class NextMag extends NewsBaseClass {
 
   GetInfo() {
     var info = super.GetInfo();
-    date_string = GetDateFromLdJson();
+    var date_string = GetDateFromLdJson();
     if (date_string != false) {
       info.Date = NormalizeDateString(date_string);      
     } else {
@@ -452,6 +452,26 @@ class MoneyDJ extends NewsBaseClass {
     this.site_name = "MoneyDJ 理財網";
     this.domain_name = "moneydj.com";
     this.title_break = "-";
+  }
+}
+
+class BusinessNext extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "數位時代";
+    this.domain_name = "bnext.com.tw";
+    this.title_break = "｜";
+  }
+  
+  GetInfo() {
+    var info = super.GetInfo();
+    var date_string = GetDateFromLdJson();
+    if (date_string != false) {
+      info.Date = NormalizeDateString(date_string);      
+    } else {
+      info = false;
+    }
+    return info;
   }
 }
 
