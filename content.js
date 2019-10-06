@@ -5,7 +5,7 @@
 console.log("@Content:Loading");
 
 var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", 
-                    "財訊", "TVBS", "COOL3C", "UDN", "CNYES", "CMoney", "Storm", "SETN", "BuzzOrange", "NewTalk"];
+                    "財訊", "TVBS", "COOL3C", "UDN", "CNYES", "CMoney", "Storm", "SETN", "BuzzOrange", "NewTalk", "BusinessWeekly"];
 var ClipboardBuffer = false;
 
 //-----------------------------------------------------------------------------
@@ -35,6 +35,7 @@ function NormalizeDateString(tstr) {
     result = tstr.substring(0, p);
   }
   result = result.replace(/\//g, "-");
+  result = result.replace(/\./g, "-");
   return result;
 }
 
@@ -58,7 +59,6 @@ $(document).ready(function () {
 });
 
 document.addEventListener('copy', function(e) {
-  //e.clipboardData.setData('text/html', "2019-01-01, <a href='http://www.google.com'>Google</a>");
   if (ClipboardBuffer !== false) {
     e.clipboardData.setData('text/html', ClipboardBuffer);
     e.preventDefault();
@@ -298,6 +298,39 @@ class NewTalk extends NewsBaseClass {
     super();
     this.site_name = "新頭殼";
     this.domain_name = "newtalk.tw";
+  }
+}
+
+class BusinessWeekly extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "商周";
+    this.domain_name = "businessweekly.com.tw";
+  }
+  
+  GetInfo() {
+    var info = super.GetInfo();
+    var date_string = false;
+    var span_list = document.getElementsByTagName("span");
+    for(var i=0; i<span_list.length; i++) {
+      var item = span_list[i];
+      var html = item.innerHTML;
+      var year = 0;
+      html = html.trim();
+      if (html.length > 4) {
+        year = parseInt(html.substring(0, 4));
+      }      
+      if (html.indexOf(".") != -1 && html.length <= 10 && year > 1911) {
+        date_string = html; 
+        break;
+      }
+    }
+    if (date_string != false) {
+      info.Date = NormalizeDateString(date_string);      
+    } else {
+      info = false;
+    }
+    return info;
   }
 }
 
