@@ -296,9 +296,9 @@ class BuzzOrange extends NewsBaseClass {
   GetInfo() {
     var info = super.GetInfo();
     var date_string = false;                //<time class="entry-date published" datetime="2019-09-05T11:00:01+08:00">2019/09/05</time>
-    var span_list = document.getElementsByTagName("time");
-    for(var i=0; i<span_list.length; i++) {
-      var item = span_list[i];
+    var time_list = document.getElementsByTagName("time");
+    for(var i=0; i<time_list.length; i++) {
+      var item = time_list[i];
       var html = item.innerHTML;
       var datetime = item.getAttribute('datetime');
       if (datetime != null) {
@@ -366,9 +366,9 @@ class 中廣新聞網 extends NewsBaseClass {
   GetInfo() {
     var info = super.GetInfo();
     var date_string = false;                // <div class="tt27">2019/07/24 11:22 報導</div>
-    var span_list = document.getElementsByTagName("div");
-    for(var i=0; i<span_list.length; i++) {
-      var item = span_list[i];
+    var div_list = document.getElementsByTagName("div");
+    for(var i=0; i<div_list.length; i++) {
+      var item = div_list[i];
       var html = item.innerHTML;
       var year = 0;
       html = html.trim();
