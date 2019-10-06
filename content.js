@@ -5,7 +5,7 @@
 console.log("@Content:Loading");
 
 var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", 
-                    "財訊", "TVBS", "COOL3C"];
+                    "財訊", "TVBS", "COOL3C", "UDN", "CNYES"];
 var ClipboardBuffer = false;
 
 //-----------------------------------------------------------------------------
@@ -226,8 +226,28 @@ class COOL3C extends NewsBaseClass {
   constructor() {
     super();
     this.site_name = "癮科技 Cool3C";
-    this.domain_name = "https://www.cool3c.com";
+    this.domain_name = "cool3c.com";
     this.title_break = "-";
+  }
+}
+
+class UDN extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "聯合新聞網";
+    this.domain_name = "https://udn.com";
+    this.title_break = "|";
+    this.date_attribute_key = "name";
+    this.date_attribute_value = "date"; 
+  }
+}
+
+class CNYES extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "鉅亨網";
+    this.domain_name = "news.cnyes.com";
+    this.title_break = "|";
   }
 }
 
