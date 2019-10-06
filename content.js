@@ -5,7 +5,7 @@
 console.log("@Content:Loading");
 
 var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", 
-                    "財訊", "TVBS"];
+                    "財訊", "TVBS", "COOL3C"];
 var ClipboardBuffer = false;
 
 //-----------------------------------------------------------------------------
@@ -219,6 +219,15 @@ class TVBS extends NewsBaseClass {
     this.site_name = "TVBS";
     this.domain_name = "tvbs.com.tw";
     this.title_break = "│";
+  }
+}
+
+class COOL3C extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "癮科技 Cool3C";
+    this.domain_name = "https://www.cool3c.com";
+    this.title_break = "-";
   }
 }
 
