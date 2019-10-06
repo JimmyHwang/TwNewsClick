@@ -6,7 +6,7 @@ console.log("@Content:Loading");
 
 var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", 
                     "財訊", "TVBS", "COOL3C", "UDN", "CNYES", "CMoney", "Storm", "SETN", "BuzzOrange", "NewTalk", "BusinessWeekly", 
-                    "中廣新聞網", "AppleDaily", "NextMag", "MoneyDJ", "BusinessNext", "IThome", "T客邦"];
+                    "中廣新聞網", "AppleDaily", "NextMag", "MoneyDJ", "BusinessNext", "IThome", "T客邦", "立場新聞", "xfastest"];
 var ClipboardBuffer = false;
 
 //-----------------------------------------------------------------------------
@@ -44,6 +44,24 @@ function NormalizeTitleString(tstr, tag = "|") {
   var tlist = tstr.split(tag);
   result = tlist[0].trim();
   return result;
+}
+
+function GetDateFromLdJson() {
+  var date_string = false;
+  var items = document.getElementsByTagName("script");
+  for(var i=0; i<items.length; i++) {
+    var item = items[i];
+    var type = item.getAttribute('type');
+    if (type != null) {
+      if (type.indexOf("json") != -1) {   // <script type="application/ld+json">
+        var html = item.innerHTML;
+        var jobj = JSON.parse(html);          
+        date_string = jobj.datePublished;
+        break;
+      }
+    }
+  }
+  return date_string;
 }
 
 //-----------------------------------------------------------------------------
@@ -105,6 +123,9 @@ class NewsBaseClass {
     }
     if (info.Date == false) {
       info.Date = GetMetaData("name", "pubdate", "content");
+    }
+    if (info.Date == false) {
+      info.Date = GetDateFromLdJson();
     }
     if (info.Date != false) {
       info.Date = NormalizeDateString(info.Date);
@@ -389,24 +410,6 @@ class 中廣新聞網 extends NewsBaseClass {
   }
 }
 
-function GetDateFromLdJson() {
-  var date_string = false;
-  var items = document.getElementsByTagName("script");
-  for(var i=0; i<items.length; i++) {
-    var item = items[i];
-    var type = item.getAttribute('type');
-    if (type != null) {
-      if (type.indexOf("json") != -1) {   // <script type="application/ld+json">
-        var html = item.innerHTML;
-        var jobj = JSON.parse(html);          
-        date_string = jobj.datePublished;
-        break;
-      }
-    }
-  }
-  return date_string;
-}
-
 class AppleDaily extends NewsBaseClass {
   constructor() {
     super();
@@ -433,17 +436,6 @@ class NextMag extends NewsBaseClass {
     this.site_name = "壹週刊";
     this.domain_name = "nextmag.com.tw";
   }
-
-  GetInfo() {
-    var info = super.GetInfo();
-    var date_string = GetDateFromLdJson();
-    if (date_string != false) {
-      info.Date = NormalizeDateString(date_string);      
-    } else {
-      info = false;
-    }
-    return info;
-  }
 }
 
 class MoneyDJ extends NewsBaseClass {
@@ -461,17 +453,6 @@ class BusinessNext extends NewsBaseClass {
     this.site_name = "數位時代";
     this.domain_name = "bnext.com.tw";
     this.title_break = "｜";
-  }
-  
-  GetInfo() {
-    var info = super.GetInfo();
-    var date_string = GetDateFromLdJson();
-    if (date_string != false) {
-      info.Date = NormalizeDateString(date_string);      
-    } else {
-      info = false;
-    }
-    return info;
   }
 }
 
@@ -514,7 +495,22 @@ class T客邦 extends NewsBaseClass {
     super();
     this.site_name = "T客邦";
     this.domain_name = "techbang.com";
-    this.title_break = "|";
+  }
+}
+
+class 立場新聞 extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "立場新聞";
+    this.domain_name = "thestandnews.com";
+  }
+}
+
+class xfastest extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "xfastest";
+    this.domain_name = "xfastest.com";    
   }
 }
 
