@@ -6,7 +6,7 @@ console.log("@Content:Loading");
 
 var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", 
                     "財訊", "TVBS", "COOL3C", "UDN", "CNYES", "CMoney", "Storm", "SETN", "BuzzOrange", "NewTalk", "BusinessWeekly", 
-                    "中廣新聞網", "AppleDaily", "NextMag", "MoneyDJ", "BusinessNext", "IThome", "T客邦", "立場新聞", "xfastest"];
+                    "中廣新聞網", "AppleDaily", "NextMag", "MoneyDJ", "BusinessNext", "IThome", "T客邦", "立場新聞", "xfastest", "東森新聞"];
 var ClipboardBuffer = false;
 
 //-----------------------------------------------------------------------------
@@ -55,9 +55,11 @@ function GetDateFromLdJson() {
     if (type != null) {
       if (type.indexOf("json") != -1) {   // <script type="application/ld+json">
         var html = item.innerHTML;
-        var jobj = JSON.parse(html);          
-        date_string = jobj.datePublished;
-        break;
+        var jobj = JSON.parse(html);    
+        if (isset(jobj.datePublished)) {
+          date_string = jobj.datePublished;
+          break;
+        }
       }
     }
   }
@@ -511,6 +513,14 @@ class xfastest extends NewsBaseClass {
     super();
     this.site_name = "xfastest";
     this.domain_name = "xfastest.com";    
+  }
+}
+
+class 東森新聞 extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "東森新聞";
+    this.domain_name = "ebc.net.tw";    
   }
 }
 
