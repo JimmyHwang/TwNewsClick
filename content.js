@@ -69,108 +69,13 @@ document.addEventListener('copy', function(e) {
 //-----------------------------------------------------------------------------
 // News Site Class Defination
 //-----------------------------------------------------------------------------
-class 中央通訊社 {
+class NewsBaseClass {
   constructor() {
-  }
-  
-  Test() {
-    var st = false;
-    var site_name = GetMetaData("itemprop", "author", "content");
-    if (site_name == "中央通訊社") {
-      st = true;
-    }
-    return st;
-  }
-
-  GetInfo() {
-    var info = {};  
-    info.Site = document.querySelector('meta[itemprop="author"]')['content'];
-    info.Title = document.querySelector('meta[property="og:title"]')['content'];
-    info.URL = document.querySelector('meta[property="og:url"]')['content'];
-    info.Date = document.querySelector('meta[itemprop="datePublished"]')['content'];
-    info.Date = NormalizeDateString(info.Date);
-    info.Title = NormalizeTitleString(info.Title, "|");
-    return info;
-  }
-}
-
-class 經濟日報 {
-  constructor() {
-  }
-
-  Test() {
-    var st = false;
-    var site_name = GetMetaData("property", "og:site_name", "content");
-    if (site_name == "經濟日報") {
-      st = true;
-    }
-    return st;
-  }
-
-  GetInfo() {
-    var info = {};  
-    info.Site = document.querySelector('meta[property="og:site_name"]')['content'];
-    info.Title = document.querySelector('meta[property="og:title"]')['content'];
-    info.URL = document.querySelector('meta[property="og:url"]')['content'];
-    info.Date = document.querySelector('meta[name="date"]')['content'];
-    info.Date = NormalizeDateString(info.Date);
-    info.Title = NormalizeTitleString(info.Title);
-    return info;
-  }
-}
-
-class 中時電子報 {
-  constructor() {
-  }
-
-  Test() {
-    var st = false;
-    var site_name = GetMetaData("property", "og:site_name", "content");
-    if (site_name == "中時電子報") {
-      st = true;
-    }
-    return st;
-  }
-  GetInfo() {
-    var info = {};  
-    info.Site = document.querySelector('meta[property="og:site_name"]')['content'];
-    info.Title = document.querySelector('meta[property="og:title"]')['content'];
-    info.URL = document.querySelector('meta[property="og:url"]')['content'];
-    info.Date = document.querySelector('meta[name="pubdate"]')['content'];      
-    info.Date = NormalizeDateString(info.Date);
-    info.Title = NormalizeTitleString(info.Title);
-    return info;
-  }
-}
-
-class 自由電子報 {
-  constructor() {
-  }
-  
-  Test() {
-    var st = false;
-    var site_name = GetMetaData("property", "og:site_name", "content");
-    if (site_name == "自由電子報") {
-      st = true;
-    }
-    return st;
-  }
-  
-  GetInfo() {
-    var info = {};  
-    info.Site = document.querySelector('meta[property="og:site_name"]')['content'];
-    info.Title = document.querySelector('meta[property="og:title"]')['content'];
-    info.URL = document.querySelector('meta[property="og:url"]')['content'];
-    info.Date = document.querySelector('meta[name="pubdate"]')['content'];      
-    info.Date = NormalizeDateString(info.Date);
-    info.Title = NormalizeTitleString(info.Title, "-");
-    return info;
-  }
-}
-
-class TechNews {
-  constructor() {
-    this.domain_name = "technews.tw";
+    this.site_name = false;          // TVBS
+    this.domain_name = false;        // tvbs.com.tw
+    this.title_break = "|";
+    this.date_attribute_key = "property";
+    this.date_attribute_value = "article:published_time";    
   }
   
   Test() {
@@ -181,175 +86,139 @@ class TechNews {
     }
     return st;
   }
-  
+
   GetInfo() {
     var info = {};  
-    info.Site = document.querySelector('meta[property="og:site_name"]')['content'];
-    info.Title = document.querySelector('meta[property="og:title"]')['content'];
-    info.URL = document.querySelector('meta[property="og:url"]')['content'];
+    info.Site = GetMetaData("property", "og:site_name", "content");
+    if (info.Site == false) {
+      info.Site = this.site_name;
+    }
+    info.Title = GetMetaData("property", "og:title", "content");
+    info.URL = GetMetaData("property", "og:url", "content");
+    info.Date = GetMetaData(this.date_attribute_key, this.date_attribute_value, "content");    
+    if (info.Date != false) {
+      info.Date = NormalizeDateString(info.Date);
+    }
+    info.Title = NormalizeTitleString(info.Title, this.title_break);
+    return info;
+  }
+}
+
+class 中央通訊社 extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "中央通訊社";
+    this.domain_name = "cna.com.tw";
+    this.title_break = "|";
+    this.date_attribute_key = "itemprop";
+    this.date_attribute_value = "datePublished"; 
+  }
+}
+
+class 經濟日報 extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "經濟日報";
+    this.domain_name = "money.udn.com";
+    this.title_break = "|";
+    this.date_attribute_key = "name";
+    this.date_attribute_value = "date"; 
+  }
+}
+
+class 中時電子報 extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "中時電子報";
+    this.domain_name = "chinatimes.com";
+    this.title_break = "|";
+    this.date_attribute_key = "name";
+    this.date_attribute_value = "pubdate"; 
+  }
+}
+
+class 自由電子報 extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "自由電子報";
+    this.domain_name = "ltn.com.tw";    
+    this.title_break = "-";
+    this.date_attribute_key = "name";
+    this.date_attribute_value = "pubdate"; 
+  }
+}
+
+class TechNews extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "TechNews 科技新報";
+    this.domain_name = "technews.tw";
+  }
+  
+  GetInfo() {
+    var info = super.GetInfo();
     var url = info.URL;
     var tag = this.domain_name;
     var p1 = url.indexOf(tag)+tag.length+1;
     info.Date = url.substring(p1, p1+10); 
     info.Date = NormalizeDateString(info.Date);
-    info.Title = NormalizeTitleString(info.Title);
     return info;
   }
 }
 
-class ETtoday {
+class ETtoday extends NewsBaseClass {
   constructor() {
+    super();
+    this.site_name = "ETtoday 新聞雲";
     this.domain_name = "ettoday.net";
-  }
-  
-  Test() {
-    var st = false;
-    var url = window.location.href;
-    if (url.indexOf(this.domain_name) != -1) {
-      st = true;
-    }
-    return st;
-  }
-  
-  GetInfo() {
-    var info = {};  
-    info.Site = document.querySelector('meta[property="og:site_name"]')['content'];
-    info.Title = document.querySelector('meta[property="og:title"]')['content'];
-    info.URL = document.querySelector('meta[property="og:url"]')['content'];
-    info.Date = document.querySelector('meta[name="pubdate"]')['content'];      
-    info.Date = NormalizeDateString(info.Date);
-    info.Title = NormalizeTitleString(info.Title);
-    return info;
+    this.date_attribute_key = "name";
+    this.date_attribute_value = "pubdate"; 
   }
 }
 
-class NowNews {
+class NowNews extends NewsBaseClass {
   constructor() {
+    super();
+    this.site_name = "NowNews 今日新聞";
     this.domain_name = "nownews.com";
-  }
-  
-  Test() {
-    var st = false;
-    var url = window.location.href;
-    if (url.indexOf(this.domain_name) != -1) {
-      st = true;
-    }
-    return st;
-  }
-
-  GetInfo() {
-    var info = {};  
-    info.Site = document.querySelector('meta[property="og:site_name"]')['content'];
-    info.Title = document.querySelector('meta[property="og:title"]')['content'];
-    info.URL = document.querySelector('meta[property="og:url"]')['content'];
-    info.Date = document.querySelector('meta[name="publishedTime"]')['content'];      
-    info.Date = NormalizeDateString(info.Date);
-    info.Title = NormalizeTitleString(info.Title);
-    return info;
+    this.date_attribute_key = "name";
+    this.date_attribute_value = "publishedTime"; 
   }
 }
 
-class BusinessToday {
+class BusinessToday extends NewsBaseClass {
   constructor() {
+    super();
+    this.site_name = "今周刊";
     this.domain_name = "businesstoday.com.tw";
-  }
-  
-  Test() {
-    var st = false;
-    var url = window.location.href;
-    if (url.indexOf(this.domain_name) != -1) {
-      st = true;
-    }
-    return st;
-  }
-
-  GetInfo() {
-    var info = {};  
-    info.Site = "今周刊";
-    info.Title = document.querySelector('meta[property="og:title"]')['content'];
-    info.URL = document.querySelector('meta[property="og:url"]')['content'];
-    info.Date = document.querySelector('meta[property="article:published_time"]')['content'];   
-    info.Date = NormalizeDateString(info.Date);
-    info.Title = NormalizeTitleString(info.Title, "-");
-    return info;
+    this.title_break = "-";
   }
 }
 
-class 工商時報 {
+class 工商時報 extends NewsBaseClass {
   constructor() {
+    super();
+    this.site_name = "工商時報";
     this.domain_name = "ctee.com.tw";
-  }
-  
-  Test() {
-    var st = false;
-    var url = window.location.href;
-    if (url.indexOf(this.domain_name) != -1) {
-      st = true;
-    }
-    return st;
-  }
-
-  GetInfo() {
-    var info = {};  
-    info.Site = "工商時報";
-    info.Title = document.querySelector('meta[property="og:title"]')['content'];
-    info.URL = document.querySelector('meta[property="og:url"]')['content'];
-    info.Date = document.querySelector('meta[property="article:published_time"]')['content'];   
-    info.Date = NormalizeDateString(info.Date);
-    info.Title = NormalizeTitleString(info.Title, "-");
-    return info;
+    this.title_break = "-";
   }
 }
 
-class 財訊 {
+class 財訊 extends NewsBaseClass {
   constructor() {
+    super();
+    this.site_name = "財訊";
     this.domain_name = "wealth.com.tw";
-  }
-  
-  Test() {
-    var st = false;
-    var url = window.location.href;
-    if (url.indexOf(this.domain_name) != -1) {
-      st = true;
-    }
-    return st;
-  }
-
-  GetInfo() {
-    var info = {};  
-    info.Site = "財訊";
-    info.Title = document.querySelector('meta[property="og:title"]')['content'];
-    info.URL = document.querySelector('meta[property="og:url"]')['content'];
-    info.Date = document.querySelector('meta[property="article:published_time"]')['content'];   
-    info.Date = NormalizeDateString(info.Date);
-    info.Title = NormalizeTitleString(info.Title, "-");
-    return info;
+    this.title_break = "-";
   }
 }
 
-class TVBS {
+class TVBS extends NewsBaseClass {
   constructor() {
+    super();
+    this.site_name = "TVBS";
     this.domain_name = "tvbs.com.tw";
-  }
-  
-  Test() {
-    var st = false;
-    var url = window.location.href;
-    if (url.indexOf(this.domain_name) != -1) {
-      st = true;
-    }
-    return st;
-  }
-
-  GetInfo() {
-    var info = {};  
-    info.Site = "TVBS";
-    info.Title = document.querySelector('meta[property="og:title"]')['content'];
-    info.URL = document.querySelector('meta[property="og:url"]')['content'];
-    info.Date = document.querySelector('meta[property="article:published_time"]')['content'];   
-    info.Date = NormalizeDateString(info.Date);
-    info.Title = NormalizeTitleString(info.Title, "│");
-    return info;
+    this.title_break = "│";
   }
 }
 
