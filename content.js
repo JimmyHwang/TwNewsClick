@@ -5,7 +5,8 @@
 console.log("@Content:Loading");
 
 var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", 
-                    "財訊", "TVBS", "COOL3C", "UDN", "CNYES", "CMoney", "Storm", "SETN", "BuzzOrange", "NewTalk", "BusinessWeekly"];
+                    "財訊", "TVBS", "COOL3C", "UDN", "CNYES", "CMoney", "Storm", "SETN", "BuzzOrange", "NewTalk", "BusinessWeekly", 
+                    "中廣新聞網"];
 var ClipboardBuffer = false;
 
 //-----------------------------------------------------------------------------
@@ -322,6 +323,39 @@ class BusinessWeekly extends NewsBaseClass {
       }      
       if (html.indexOf(".") != -1 && html.length <= 10 && year > 1911) {
         date_string = html; 
+        break;
+      }
+    }
+    if (date_string != false) {
+      info.Date = NormalizeDateString(date_string);      
+    } else {
+      info = false;
+    }
+    return info;
+  }
+}
+
+class 中廣新聞網 extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "中廣新聞網";
+    this.domain_name = "bcc.com.tw";
+  }
+
+  GetInfo() {
+    var info = super.GetInfo();
+    var date_string = false;                // <div class="tt27">2019/07/24 11:22 報導</div>
+    var span_list = document.getElementsByTagName("div");
+    for(var i=0; i<span_list.length; i++) {
+      var item = span_list[i];
+      var html = item.innerHTML;
+      var year = 0;
+      html = html.trim();
+      if (html.length > 4) {
+        year = parseInt(html.substring(0, 4));
+      }
+      if (html.indexOf("/") != -1 && html.length <= 20 && year > 1911) {
+        date_string = html.substring(0, 10); 
         break;
       }
     }
