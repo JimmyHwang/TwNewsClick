@@ -292,6 +292,27 @@ class BuzzOrange extends NewsBaseClass {
     this.site_name = "科技報橘";
     this.domain_name = "buzzorange.com";
   }
+  
+  GetInfo() {
+    var info = super.GetInfo();
+    var date_string = false;                //<time class="entry-date published" datetime="2019-09-05T11:00:01+08:00">2019/09/05</time>
+    var span_list = document.getElementsByTagName("time");
+    for(var i=0; i<span_list.length; i++) {
+      var item = span_list[i];
+      var html = item.innerHTML;
+      var datetime = item.getAttribute('datetime');
+      if (datetime != null) {
+        date_string = html;
+        break;
+      }
+    }
+    if (date_string != false) {
+      info.Date = NormalizeDateString(date_string);      
+    } else {
+      info = false;
+    }
+    return info;
+  }
 }
 
 class NewTalk extends NewsBaseClass {
