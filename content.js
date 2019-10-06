@@ -6,7 +6,7 @@ console.log("@Content:Loading");
 
 var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", 
                     "財訊", "TVBS", "COOL3C", "UDN", "CNYES", "CMoney", "Storm", "SETN", "BuzzOrange", "NewTalk", "BusinessWeekly", 
-                    "中廣新聞網", "AppleDaily", "NextMag", "MoneyDJ", "BusinessNext", "IThome"];
+                    "中廣新聞網", "AppleDaily", "NextMag", "MoneyDJ", "BusinessNext", "IThome", "T客邦"];
 var ClipboardBuffer = false;
 
 //-----------------------------------------------------------------------------
@@ -506,6 +506,15 @@ class IThome extends NewsBaseClass {
       info = false;
     }
     return info;
+  }
+}
+
+class T客邦 extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "T客邦";
+    this.domain_name = "techbang.com";
+    this.title_break = "|";
   }
 }
 
