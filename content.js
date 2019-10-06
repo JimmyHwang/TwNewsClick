@@ -4,7 +4,8 @@
 //
 console.log("@Content:Loading");
 
-var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", "財訊"];
+var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", 
+                    "財訊", "TVBS"];
 var ClipboardBuffer = false;
 
 //-----------------------------------------------------------------------------
@@ -322,6 +323,32 @@ class 財訊 {
     info.Date = document.querySelector('meta[property="article:published_time"]')['content'];   
     info.Date = NormalizeDateString(info.Date);
     info.Title = NormalizeTitleString(info.Title, "-");
+    return info;
+  }
+}
+
+class TVBS {
+  constructor() {
+    this.domain_name = "tvbs.com.tw";
+  }
+  
+  Test() {
+    var st = false;
+    var url = window.location.href;
+    if (url.indexOf(this.domain_name) != -1) {
+      st = true;
+    }
+    return st;
+  }
+
+  GetInfo() {
+    var info = {};  
+    info.Site = "TVBS";
+    info.Title = document.querySelector('meta[property="og:title"]')['content'];
+    info.URL = document.querySelector('meta[property="og:url"]')['content'];
+    info.Date = document.querySelector('meta[property="article:published_time"]')['content'];   
+    info.Date = NormalizeDateString(info.Date);
+    info.Title = NormalizeTitleString(info.Title, "│");
     return info;
   }
 }
