@@ -1,5 +1,5 @@
 {
-    "name": "Getting Started Example: Hello",
+    "name": "Taiwan News Click",
     "version": "1.0",
     "description": "Build an Extension!",
     "permissions": ["activeTab","declarativeContent","storage", "clipboardWrite", "clipboardRead", "tabs"],
