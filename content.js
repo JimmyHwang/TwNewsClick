@@ -6,7 +6,7 @@ console.log("@Content:Loading");
 
 var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", 
                     "財訊", "TVBS", "COOL3C", "UDN", "CNYES", "CMoney", "Storm", "SETN", "BuzzOrange", "NewTalk", "BusinessWeekly", 
-                    "中廣新聞網"];
+                    "中廣新聞網", "AppleDaily", "NextMag"];
 var ClipboardBuffer = false;
 
 //-----------------------------------------------------------------------------
@@ -380,6 +380,63 @@ class 中廣新聞網 extends NewsBaseClass {
         break;
       }
     }
+    if (date_string != false) {
+      info.Date = NormalizeDateString(date_string);      
+    } else {
+      info = false;
+    }
+    return info;
+  }
+}
+
+function GetDateFromLdJson() {
+  var date_string = false;
+  var items = document.getElementsByTagName("script");
+  for(var i=0; i<items.length; i++) {
+    var item = items[i];
+    var type = item.getAttribute('type');
+    if (type != null) {
+      if (type.indexOf("json") != -1) {   // <script type="application/ld+json">
+        var html = item.innerHTML;
+        var jobj = JSON.parse(html);          
+        date_string = jobj.datePublished;
+        break;
+      }
+    }
+  }
+  return date_string;
+}
+
+class AppleDaily extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "蘋果日報";
+    this.domain_name = "tw.appledaily.com";
+    this.title_break = "｜";    
+  }
+
+  GetInfo() {
+    var info = super.GetInfo();
+    date_string = GetDateFromLdJson();
+    if (date_string != false) {
+      info.Date = NormalizeDateString(date_string);      
+    } else {
+      info = false;
+    }
+    return info;
+  }
+}
+
+class NextMag extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "壹週刊";
+    this.domain_name = "nextmag.com.tw";
+  }
+
+  GetInfo() {
+    var info = super.GetInfo();
+    date_string = GetDateFromLdJson();
     if (date_string != false) {
       info.Date = NormalizeDateString(date_string);      
     } else {
