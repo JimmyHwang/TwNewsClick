@@ -6,7 +6,7 @@ console.log("@Content:Loading");
 
 var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", 
                     "財訊", "TVBS", "COOL3C", "UDN", "CNYES", "CMoney", "Storm", "SETN", "BuzzOrange", "NewTalk", "BusinessWeekly", 
-                    "中廣新聞網", "AppleDaily", "NextMag"];
+                    "中廣新聞網", "AppleDaily", "NextMag", "MoneyDJ"];
 var ClipboardBuffer = false;
 
 //-----------------------------------------------------------------------------
@@ -443,6 +443,15 @@ class NextMag extends NewsBaseClass {
       info = false;
     }
     return info;
+  }
+}
+
+class MoneyDJ extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "MoneyDJ 理財網";
+    this.domain_name = "moneydj.com";
+    this.title_break = "-";
   }
 }
 
