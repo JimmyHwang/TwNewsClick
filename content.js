@@ -559,7 +559,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (info == false) {
     var lobj = new LdJsonClass();
     if (lobj.Object !== false) {
-      console.log("@1");
       jobj = lobj.Object;
       info = {};
       info.Title = jobj.headline;
