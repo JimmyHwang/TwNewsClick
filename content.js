@@ -69,7 +69,7 @@ class LdJsonClass {
   GetDate() {
     var result = false;
     if (this.Object !== false) {
-      result = jobj.datePublished;
+      result = this.Object.datePublished;
     }
     return result;
   }
