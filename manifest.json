@@ -1,6 +1,6 @@
 {
     "name": "Taiwan News Click",
-    "version": "1.0",
+    "version": "1.2",
     "description": "Build an Extension!",
     "permissions": ["activeTab","declarativeContent","storage", "clipboardWrite", "clipboardRead", "tabs"],
     "options_page": "options.html",

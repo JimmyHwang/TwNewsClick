@@ -46,24 +46,38 @@ function NormalizeTitleString(tstr, tag = "|") {
   return result;
 }
 
-function GetDateFromLdJson() {
-  var date_string = false;
-  var items = document.getElementsByTagName("script");
-  for(var i=0; i<items.length; i++) {
-    var item = items[i];
-    var type = item.getAttribute('type');
-    if (type != null) {
-      if (type.indexOf("json") != -1) {   // <script type="application/ld+json">
-        var html = item.innerHTML;
-        var jobj = JSON.parse(html);    
-        if (isset(jobj.datePublished)) {
-          date_string = jobj.datePublished;
-          break;
+class LdJsonClass {
+  constructor() {
+    this.Object = false;
+    var items = document.getElementsByTagName("script");
+    for(var i=0; i<items.length; i++) {
+      var item = items[i];
+      var type = item.getAttribute('type');
+      if (type != null) {
+        if (type.indexOf("json") != -1) {   // <script type="application/ld+json">
+          var html = item.innerHTML;
+          var jobj = JSON.parse(html);    
+          if (isset(jobj.datePublished)) {
+            this.Object = jobj;
+            break;
+          }
         }
       }
     }
   }
-  return date_string;
+  
+  GetDate() {
+    var result = false;
+    if (this.Object !== false) {
+      result = jobj.datePublished;
+    }
+    return result;
+  }
+}
+
+function GetDateFromLdJson() {
+  var jobj = new LdJsonClass();
+  return jobj.GetDate();
 }
 
 //-----------------------------------------------------------------------------
@@ -109,7 +123,7 @@ class NewsBaseClass {
   }
 
   GetInfo() {
-    var info = {};  
+    var info = {};
     info.Site = GetMetaData("property", "og:site_name", "content");
     if (info.Site == false) {
       info.Site = this.site_name;
@@ -538,7 +552,32 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       info = nobj.GetInfo();
       break;
     }
-  } 
+  }
+  //
+  // Try ld+json Mode if nothing
+  //
+  if (info == false) {
+    var lobj = new LdJsonClass();
+    if (lobj.Object !== false) {
+      console.log("@1");
+      jobj = lobj.Object;
+      info = {};
+      info.Title = jobj.headline;
+      info.Date = NormalizeDateString(jobj.datePublished);
+      info.URL = jobj.url;
+      info.Site = jobj.publisher.name;
+    }
+  }
+  //
+  // Try base Class if nothing
+  //
+  if (info == false) {
+    var nobj = new NewsBaseClass();
+    var data = nobj.GetInfo();
+    if (data.Site !== false && data.URL !== false && data.Title !== false && data.Date !== false) {
+      info = data;
+    }
+  }  
   //
   // Generate HTML formated data then set to clipboard
   //
