@@ -1,7 +1,7 @@
 {
     "name": "Taiwan News Click",
-    "version": "1.2",
-    "description": "Build an Extension!",
+    "version": "1.3",
+    "description": "An extension supports generate formatted Taiwan news link for paste to Google Docs",
     "permissions": ["activeTab","declarativeContent","storage", "clipboardWrite", "clipboardRead", "tabs"],
     "options_page": "options.html",
     "background": {
@@ -9,7 +9,7 @@
       "persistent": false
     },
     "page_action": {
-      "default_title": "Taiwan News Link", 
+      "default_title": "Taiwan News Click", 
       "default_popup": "popup.html",
       "default_icon": {
         "16": "images/clipboard-16.png",

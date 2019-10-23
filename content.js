@@ -146,7 +146,9 @@ class NewsBaseClass {
     if (info.Date != false) {
       info.Date = NormalizeDateString(info.Date);
     }
-    info.Title = NormalizeTitleString(info.Title, this.title_break);
+    if (info.Title != false) {
+      info.Title = NormalizeTitleString(info.Title, this.title_break);
+    }
     return info;
   }
 }
@@ -581,9 +583,17 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   // Generate HTML formated data then set to clipboard
   //
   if (info !== false) {    
-    ClipboardBuffer = sprintf("%s, <a href='%s'>%s</a>", info.Date, info.URL, info.Title);
-    document.execCommand('copy');
-  }  
+    if (request.mode == 0) {
+      ClipboardBuffer = sprintf("%s, <a href='%s'>%s</a>", info.Date, info.URL, info.Title);
+      document.execCommand('copy');
+    } else if (request.mode == 1) {
+      ClipboardBuffer = sprintf("<a href='%s'>%s</a>", info.URL, info.Title);
+      document.execCommand('copy');
+    } else {      
+    }
+  } else {
+    alert('Info: Can\'t generate news link of the page'); 
+  }
   //
   // Sample Code
   //
