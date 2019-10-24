@@ -582,11 +582,18 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     var lobj = new LdJsonClass();
     if (lobj.Object !== false) {
       jobj = lobj.Object;
-      info = {};
-      info.Title = jobj.headline;
-      info.Date = NormalizeDateString(jobj.datePublished);
-      info.URL = jobj.url;
-      info.Site = jobj.publisher.name;
+      data = {};
+      data.Title = jobj.headline;
+      data.Date = NormalizeDateString(jobj.datePublished);
+      if (isset(jobj.url)) {
+        data.URL = jobj.url;
+      } else {
+        data.URL = window.location.href;
+      }      
+      data.Site = jobj.publisher.name;
+      if (data.Site !== false && data.URL !== false && data.Title !== false && data.Date !== false) {
+        info = data;
+      }      
     }
   }
   //
