@@ -6,7 +6,8 @@ console.log("@Content:Loading");
 
 var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", 
                     "財訊", "TVBS", "COOL3C", "UDN", "CNYES", "CMoney", "Storm", "SETN", "BuzzOrange", "NewTalk", "BusinessWeekly", 
-                    "中廣新聞網", "AppleDaily", "NextMag", "MoneyDJ", "BusinessNext", "IThome", "T客邦", "立場新聞", "xfastest", "東森新聞"];
+                    "中廣新聞網", "AppleDaily", "NextMag", "MoneyDJ", "BusinessNext", "IThome", "T客邦", "立場新聞", "xfastest", "東森新聞",
+                    "ManagerToday"];
 var ClipboardBuffer = false;
 
 //-----------------------------------------------------------------------------
@@ -537,6 +538,25 @@ class 東森新聞 extends NewsBaseClass {
     super();
     this.site_name = "東森新聞";
     this.domain_name = "ebc.net.tw";    
+  }
+}
+
+class ManagerToday extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "經理人";
+    this.domain_name = "managertoday.com.tw";    
+  }
+  
+  GetInfo() {
+    var info = super.GetInfo();
+    if (info.Date == false) {
+      info.Date = GetMetaData("property", "article:published_time", "content");   // Why get failed when exists
+      if (info.Date == false) {
+        info.Date = GetMetaData("name", "my:date", "content");   
+      }
+    }    
+    return info;
   }
 }
 
