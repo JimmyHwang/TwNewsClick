@@ -423,7 +423,8 @@ class BusinessWeekly extends NewsBaseClass {
       if (html.length > 4) {
         year = parseInt(html.substring(0, 4));
       }      
-      if (html.indexOf(".") != -1 && html.length <= 10 && year > 1911) {
+      html = html.replace(".", "-");
+      if (html.indexOf("-") != -1 && html.length <= 10 && year > 1911) {
         date_string = html; 
         break;
       }
