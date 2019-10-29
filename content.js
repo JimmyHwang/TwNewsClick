@@ -47,17 +47,58 @@ function NormalizeTitleString(tstr, tag = "|") {
   return result;
 }
 
+//
+// The function for fix "\n" exists in data cause json decode failed issue
+//
+function FixInvalidCharacterInJson(html) {
+  var i = 0;
+  var offset = 0;
+  var t1;
+  var t2;
+  var data;
+  
+  do { 
+    t1 = html.indexOf('"', offset);
+    if (t1 == -1) {
+      break;
+    }
+    t2 = html.indexOf('"', t1+1);
+    if (t2 == -1) {
+      break;
+    }
+    var data = html.substring(t1+1, t2);
+    if (data.indexOf("\n") != -1) {
+      var l1 = data.length;
+      data = data.replace("\n", "<br>");
+      var l2 = data.length;
+      var s1 = html.substring(0, t1+1);
+      var s3 = html.substring(t2);
+      html = s1+data+s3;
+      t2 += l2 - l1;
+    }
+    offset = t2 + 1;
+  } while (true);
+  
+  return html;
+}
+
 class LdJsonClass {
   constructor() {
     this.Object = false;
     var items = document.getElementsByTagName("script");
+    var jobj;
     for(var i=0; i<items.length; i++) {
       var item = items[i];
       var type = item.getAttribute('type');
       if (type != null) {
         if (type.indexOf("json") != -1) {   // <script type="application/ld+json">
-          var html = item.innerHTML;
-          var jobj = JSON.parse(html);    
+          var html = FixInvalidCharacterInJson(item.innerHTML);
+          try {
+            jobj = JSON.parse(html);
+          } catch(e) {
+            console.log("html="+html);
+            jobj = {};
+          }          
           if (isset(jobj.datePublished)) {
             this.Object = jobj;
             break;
