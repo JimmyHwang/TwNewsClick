@@ -7,8 +7,9 @@ console.log("@Content:Loading");
 var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", 
                     "財訊", "TVBS", "COOL3C", "UDN", "CNYES", "CMoney", "Storm", "SETN", "BuzzOrange", "NewTalk", "BusinessWeekly", 
                     "中廣新聞網", "AppleDaily", "NextMag", "MoneyDJ", "BusinessNext", "IThome", "T客邦", "立場新聞", "xfastest", "東森新聞",
-                    "ManagerToday", "必聞網", "科技產業資訊室", "Yahoo股市"];
+                    "ManagerToday", "必聞網", "科技產業資訊室", "Yahoo股市", "MSN財經", "LEDInside"];
 var ClipboardBuffer = false;
+var DebugFlags = 0;
 
 //-----------------------------------------------------------------------------
 // Common functions
@@ -721,6 +722,82 @@ class Yahoo股市 extends NewsBaseClass {
   }
 }
 
+class MSN財經 extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "MSN財經";
+    this.domain_name = "www.msn.com/zh-tw";    
+  }
+  
+  GetInfo() {
+    var html;
+    var info = super.GetInfo();    
+    var date_string = false;
+    var div_list = document.getElementsByTagName("time"); //<time datetime="2019-05-02T05:30:10.000Z">2019/5/2</time>
+    for (var i=0; i<div_list.length; i++) {
+      var item = div_list[i];
+      var attr = item.getAttribute("datetime");
+      if (attr != null) {
+        html = attr;
+        var year = 0;
+        html = html.trim();
+        if (html.length > 4) {
+          year = parseInt(html.substring(0, 4));
+        }
+        if (html.indexOf("-") != -1 && html.length <= 32 && year > 1911) {
+          date_string = html.substring(0, 10); 
+          break;
+        }
+      }
+    }
+    if (date_string != false) {
+      info.Date = NormalizeDateString(date_string);      
+    } else {
+      info = false;
+    }
+
+    return info;
+  }
+}
+
+class LEDInside extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "LEDInside";
+    this.domain_name = "ledinside.com.tw";    
+  }
+  
+  GetInfo() {
+    var html;
+    var info = super.GetInfo();    
+    var date_string = false;
+    var div_list = document.getElementsByTagName("div"); //<div class="submitted">2019-10-14 18:23 [編輯：YiningChen]</div>
+    for (var i=0; i<div_list.length; i++) {
+      var item = div_list[i];
+      var attr = item.getAttribute("class");
+      if (attr != null && attr == "submitted") {
+        html = item.innerHTML;
+        var year = 0;
+        html = html.trim();
+        if (html.length > 4) {
+          year = parseInt(html.substring(0, 4));
+        }
+        if (html.indexOf("-") != -1 && html.length <= 64 && year > 1911) {
+          date_string = html.substring(0, 10); 
+          break;
+        }
+      }
+    }
+    if (date_string != false) {
+      info.Date = NormalizeDateString(date_string);      
+    } else {
+      info = false;
+    }
+
+    return info;
+  }
+}
+  
 //-----------------------------------------------------------------------------
 // Message Receiver
 //-----------------------------------------------------------------------------
@@ -734,8 +811,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     var nobj = eval("new " + item + "()");
     if (nobj.Test()) {
       data = nobj.GetInfo();
-      //console.log(item);
-      //console.log(data);
+      if (DebugFlags & 1) {
+        console.log(item);
+        console.log(data);
+      }
       if (data.Site !== false && data.URL !== false && data.Title !== false && data.Date !== false) {
         info = data;
       }      
@@ -758,8 +837,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         data.URL = window.location.href;
       }      
       data.Site = jobj.publisher.name;
-      //console.log("@LdJsonClass");
-      //console.log(data);
+      if (DebugFlags & 1) {
+        console.log("@LdJsonClass");
+        console.log(data);
+      }
       if (data.Site !== false && data.URL !== false && data.Title !== false && data.Date !== false) {
         info = data;
       }      
@@ -771,8 +852,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (info == false) {
     var nobj = new NewsBaseClass();
     var data = nobj.GetInfo();
-    //console.log("@NewsBaseClass");
-    //console.log(data);
+    if (DebugFlags & 1) {
+      console.log("@NewsBaseClass");
+      console.log(data);
+    }
     if (data.Site !== false && data.URL !== false && data.Title !== false && data.Date !== false) {
       info = data;
     }
