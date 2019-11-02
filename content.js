@@ -7,7 +7,7 @@ console.log("@Content:Loading");
 var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", 
                     "財訊", "TVBS", "COOL3C", "UDN", "CNYES", "CMoney", "Storm", "SETN", "BuzzOrange", "NewTalk", "BusinessWeekly", 
                     "中廣新聞網", "AppleDaily", "NextMag", "MoneyDJ", "BusinessNext", "IThome", "T客邦", "立場新聞", "xfastest", "東森新聞",
-                    "ManagerToday", "必聞網", "科技產業資訊室", "Yahoo股市", "Yahoo新聞", "MSN財經", "LEDInside"];
+                    "ManagerToday", "必聞網", "科技產業資訊室", "Yahoo股市", "Yahoo新聞", "MSN財經", "LEDInside", "EETTaiwan"];
 var ClipboardBuffer = false;
 var DebugFlags = 0;
 
@@ -842,6 +842,48 @@ class LEDInside extends NewsBaseClass {
   }
 }
   
+class EETTaiwan extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "EETTaiwan";
+    this.domain_name = "eettaiwan.com";
+  }
+  
+  GetInfo() {
+    var html;
+    var date_string = false;
+    var info = super.GetInfo();
+    if (info.URL == false) {
+      info.URL = window.location.href;
+    }
+    var tag = "publishedDate";
+    var markup = document.documentElement.innerHTML;
+    var p = markup.indexOf(tag);
+    if (p != -1) {
+      var year;
+      var offset = p+tag.length+1;
+      var p1 = markup.indexOf('"', offset);
+      var p2 = markup.indexOf('"', p1+1);
+      p1 = p1 + 1;
+      var html = markup.substr(p1, p2-p1);
+      html = html.trim();
+      if (html.length > 4) {
+        year = parseInt(html.substring(0, 4));
+      }
+      if (html.indexOf("-") != -1 && html.length <= 64 && year > 1911) {
+        date_string = html.substring(0, 10); 
+      }
+    }    
+    if (date_string != false) {
+      info.Date = NormalizeDateString(date_string);      
+    } else {
+      info = false;
+    }
+
+    return info;
+  }
+}
+
 //-----------------------------------------------------------------------------
 // Message Receiver
 //-----------------------------------------------------------------------------
