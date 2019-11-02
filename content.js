@@ -847,6 +847,7 @@ class EETTaiwan extends NewsBaseClass {
     super();
     this.site_name = "EETTaiwan";
     this.domain_name = "eettaiwan.com";
+    this.title_break = "-";
   }
   
   GetInfo() {
