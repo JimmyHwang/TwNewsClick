@@ -7,7 +7,7 @@ console.log("@Content:Loading");
 var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", 
                     "財訊", "TVBS", "COOL3C", "UDN", "CNYES", "CMoney", "Storm", "SETN", "BuzzOrange", "NewTalk", "BusinessWeekly", 
                     "中廣新聞網", "AppleDaily", "NextMag", "MoneyDJ", "BusinessNext", "IThome", "T客邦", "立場新聞", "xfastest", "東森新聞",
-                    "ManagerToday"];
+                    "ManagerToday", "必聞網"];
 var ClipboardBuffer = false;
 
 //-----------------------------------------------------------------------------
@@ -602,6 +602,39 @@ class ManagerToday extends NewsBaseClass {
   }
 }
 
+class 必聞網 extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "必聞網";
+    this.domain_name = "biwennews.com";    
+  }
+  
+  GetInfo() {
+    var info = super.GetInfo();
+    var date_string = false;                // <time datetime="2019-08-14 01:19:00">2019-08-14 01:19:00</time> 
+    var div_list = document.getElementsByTagName("time");
+    for(var i=0; i<div_list.length; i++) {
+      var item = div_list[i];
+      var html = item.getAttribute("datetime");
+      var year = 0;
+      html = html.trim();
+      if (html.length > 4) {
+        year = parseInt(html.substring(0, 4));
+      }
+      if (html.indexOf("-") != -1 && html.length <= 20 && year > 1911) {
+        date_string = html.substring(0, 10); 
+        break;
+      }
+    }
+    if (date_string != false) {
+      info.Date = NormalizeDateString(date_string);      
+    } else {
+      info = false;
+    }    
+    return info;
+  }
+}
+
 //-----------------------------------------------------------------------------
 // Message Receiver
 //-----------------------------------------------------------------------------
@@ -615,6 +648,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     var nobj = eval("new " + item + "()");
     if (nobj.Test()) {
       data = nobj.GetInfo();
+      //console.log(item);
+      //console.log(data);
       if (data.Site !== false && data.URL !== false && data.Title !== false && data.Date !== false) {
         info = data;
       }      
@@ -625,7 +660,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   // Try ld+json Mode if nothing
   //
   if (info == false) {
-    //console.log("@LdJsonClass");
     var lobj = new LdJsonClass();
     if (lobj.Object !== false) {
       jobj = lobj.Object;
@@ -638,6 +672,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         data.URL = window.location.href;
       }      
       data.Site = jobj.publisher.name;
+      //console.log("@LdJsonClass");
+      //console.log(data);
       if (data.Site !== false && data.URL !== false && data.Title !== false && data.Date !== false) {
         info = data;
       }      
@@ -647,9 +683,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   // Try base Class if nothing
   //
   if (info == false) {
-    //console.log("@NewsBaseClass");
     var nobj = new NewsBaseClass();
     var data = nobj.GetInfo();
+    //console.log("@NewsBaseClass");
+    //console.log(data);
     if (data.Site !== false && data.URL !== false && data.Title !== false && data.Date !== false) {
       info = data;
     }
