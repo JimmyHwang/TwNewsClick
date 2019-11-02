@@ -610,10 +610,14 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   // Get Information from News Class
   //
   var info = false;    
+  var data;
   for (let item of NewsSiteList) {
     var nobj = eval("new " + item + "()");
     if (nobj.Test()) {
-      info = nobj.GetInfo();
+      data = nobj.GetInfo();
+      if (data.Site !== false && data.URL !== false && data.Title !== false && data.Date !== false) {
+        info = data;
+      }      
       break;
     }
   }
@@ -621,6 +625,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   // Try ld+json Mode if nothing
   //
   if (info == false) {
+    //console.log("@LdJsonClass");
     var lobj = new LdJsonClass();
     if (lobj.Object !== false) {
       jobj = lobj.Object;
@@ -642,6 +647,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   // Try base Class if nothing
   //
   if (info == false) {
+    //console.log("@NewsBaseClass");
     var nobj = new NewsBaseClass();
     var data = nobj.GetInfo();
     if (data.Site !== false && data.URL !== false && data.Title !== false && data.Date !== false) {
