@@ -418,6 +418,7 @@ class BusinessWeekly extends NewsBaseClass {
   }
   
   GetInfo() {
+    var tag = "更新時間：";
     var info = super.GetInfo();
     var date_string = false;
     var span_list = document.getElementsByTagName("span");
@@ -426,6 +427,12 @@ class BusinessWeekly extends NewsBaseClass {
       var html = item.innerHTML;
       var year = 0;
       html = html.trim();
+      var p = html.indexOf(tag);
+      if (p != -1) {                    // <span class='writter'>撰文者：恩汎理財投資團隊　更新時間：2016-11-17</span>
+        p +=  tag.length;
+        html = html.substr(p);
+        info.Title = info.Title.replace(" - Smart自學網","");
+      }      
       if (html.length > 4) {
         year = parseInt(html.substring(0, 4));
       }      
