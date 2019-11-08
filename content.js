@@ -7,7 +7,7 @@ console.log("@Content:Loading");
 var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", 
                     "財訊", "TVBS", "COOL3C", "UDN", "CNYES", "CMoney", "Storm", "SETN", "BuzzOrange", "NewTalk", "BusinessWeekly", 
                     "中廣新聞網", "AppleDaily", "NextMag", "MoneyDJ", "BusinessNext", "IThome", "T客邦", "立場新聞", "xfastest", "東森新聞",
-                    "ManagerToday", "必聞網", "科技產業資訊室", "Yahoo股市", "Yahoo新聞", "MSN財經", "LEDInside", "EETTaiwan"];
+                    "ManagerToday", "必聞網", "科技產業資訊室", "Yahoo股市", "Yahoo新聞", "MSN財經", "LEDInside", "EETTaiwan", "康健雜誌"];
 var ClipboardBuffer = false;
 var DebugFlags = 0;
 
@@ -882,6 +882,47 @@ class EETTaiwan extends NewsBaseClass {
         date_string = html.substring(0, 10); 
       }
     }    
+    if (date_string != false) {
+      info.Date = NormalizeDateString(date_string);      
+    } else {
+      info = false;
+    }
+
+    return info;
+  }
+}
+
+class 康健雜誌 extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "康健雜誌";
+    this.domain_name = "commonhealth.com.tw";
+    this.title_break = "-";
+  }
+  
+  GetInfo() {
+    var html;
+    var date_string = false;
+    var info = super.GetInfo();
+    if (info.URL == false) {
+      info.URL = window.location.href;
+    }
+    var span_list = document.getElementsByTagName("span");
+    for(var i=0; i<span_list.length; i++) {
+      var item = span_list[i];
+      var html = item.innerHTML;
+      var year = 0;
+      html = html.trim();
+      if (html.length > 4) {
+        year = parseInt(html.substring(0, 4));
+      }      
+      html = html.replace("/", "-");
+      html = html.replace(".", "-");
+      if (html.indexOf("-") != -1 && html.length <= 10 && year > 1911) {
+        date_string = html; 
+        break;
+      }
+    }
     if (date_string != false) {
       info.Date = NormalizeDateString(date_string);      
     } else {
