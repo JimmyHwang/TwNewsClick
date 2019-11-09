@@ -7,8 +7,8 @@ console.log("@Content:Loading");
 var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", 
                     "財訊", "TVBS", "COOL3C", "UDN", "CNYES", "CMoney", "Storm", "SETN", "BuzzOrange", "NewTalk", "BusinessWeekly", 
                     "中廣新聞網", "AppleDaily", "NextMag", "MoneyDJ", "BusinessNext", "IThome", "T客邦", "立場新聞", "xfastest", "東森新聞",
-                    "ManagerToday", "必聞網", "科技產業資訊室", "Yahoo股市", "Yahoo新聞", "MSN財經", "LEDInside", "EETTaiwan", "康健雜誌",
-                    "太報"];
+                    "ManagerToday", "必聞網", "科技產業資訊室", "Yahoo股市", "Yahoo新聞", "Yahoo理財", "MSN財經", "LEDInside", "EETTaiwan", 
+                    "康健雜誌", "太報"];
 var ClipboardBuffer = false;
 var DebugFlags = 0;
 
@@ -976,6 +976,49 @@ class 太報 extends NewsBaseClass {
             date_string = html; 
             break;
           }
+        }
+      }
+    }
+    if (date_string != false) {
+      info.Date = NormalizeDateString(date_string);      
+    } else {
+      info = false;
+    }
+
+    return info;
+  }
+}
+
+
+class Yahoo理財 extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "Yahoo理財";
+    this.domain_name = "tw.money.yahoo.com";
+    this.title_break = "-";
+  }
+  
+  GetInfo() {
+    var html;
+    var info = super.GetInfo();    
+    var date_string = false;
+    var tag_list = document.getElementsByTagName("cite"); // <cite class="Mstart-6 Fz-s Fs-n C-grayishblue">2019年10月8日 下午5:57</cite>
+    for (var i=0; i<tag_list.length; i++) {
+      var item = tag_list[i];
+      html = item.innerHTML;
+      if (html.indexOf("年") != -1 && html.indexOf("月") != -1 && html.indexOf("日") != -1) {
+        var p = html.indexOf("日");
+        var html = html.substr(0, p);
+        html = html.replace("年", "-");
+        html = html.replace("月", "-");
+        var year = 0;
+        html = html.trim();
+        if (html.length > 4) {
+          year = parseInt(html.substring(0, 4));
+        }
+        if (html.indexOf("-") != -1 && html.length <= 20 && year > 1911) {
+          date_string = html.substring(0, 10); 
+          break;
         }
       }
     }
