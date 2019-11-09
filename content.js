@@ -7,7 +7,8 @@ console.log("@Content:Loading");
 var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", 
                     "財訊", "TVBS", "COOL3C", "UDN", "CNYES", "CMoney", "Storm", "SETN", "BuzzOrange", "NewTalk", "BusinessWeekly", 
                     "中廣新聞網", "AppleDaily", "NextMag", "MoneyDJ", "BusinessNext", "IThome", "T客邦", "立場新聞", "xfastest", "東森新聞",
-                    "ManagerToday", "必聞網", "科技產業資訊室", "Yahoo股市", "Yahoo新聞", "MSN財經", "LEDInside", "EETTaiwan", "康健雜誌"];
+                    "ManagerToday", "必聞網", "科技產業資訊室", "Yahoo股市", "Yahoo新聞", "MSN財經", "LEDInside", "EETTaiwan", "康健雜誌",
+                    "太報"];
 var ClipboardBuffer = false;
 var DebugFlags = 0;
 
@@ -45,6 +46,13 @@ function NormalizeDateString(tstr) {
 function NormalizeTitleString(tstr, tag = "|") {
   var tlist = tstr.split(tag);
   result = tlist[0].trim();
+  return result;
+}
+
+function TimeStampToDateString(stamp) {
+  var dstr = new Date(stamp*1000).toLocaleDateString("en-US")
+  var temp = dstr.split("/");
+  var result = temp[2] + "-" + temp[0] + "-" + temp[1];
   return result;
 }
 
@@ -921,6 +929,54 @@ class 康健雜誌 extends NewsBaseClass {
       if (html.indexOf("-") != -1 && html.length <= 10 && year > 1911) {
         date_string = html; 
         break;
+      }
+    }
+    if (date_string != false) {
+      info.Date = NormalizeDateString(date_string);      
+    } else {
+      info = false;
+    }
+
+    return info;
+  }
+}
+
+class 太報 extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "太報";
+    this.domain_name = "taisounds.com";
+    this.title_break = "-";
+  }
+  
+  GetInfo() {
+    var html;
+    var date_string = false;
+    var info = super.GetInfo();
+    if (info.URL == false) {
+      info.URL = window.location.href;
+    }
+    
+    var tag_list = document.getElementsByTagName("div"); // <div class="date showDesktop">Aug 26, 2019</div><!-- 電腦版 -->
+    for(var i=0; i<tag_list.length; i++) {
+      var item = tag_list[i];
+      var c = item.getAttribute("class");
+      if (c != null) {
+        if (c.indexOf("date") != -1) {
+          var stamp = Date.parse(item.innerHTML + " UTC") / 1000; // Convert Aug 26, 2019 to Time Stamp
+          var html = TimeStampToDateString(stamp);
+          var year = 0;
+          html = html.trim();
+          if (html.length > 4) {
+            year = parseInt(html.substring(0, 4));
+          }      
+          html = html.replace("/", "-");
+          html = html.replace(".", "-");
+          if (html.indexOf("-") != -1 && html.length <= 10 && year > 1911) {
+            date_string = html; 
+            break;
+          }
+        }
       }
     }
     if (date_string != false) {
