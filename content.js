@@ -19,6 +19,16 @@ function isset(_var){
   return !!_var; // converting to boolean.
 }
 
+function json_decode(jstr) {
+  var jobj = JSON.parse(jstr);
+  return jobj;
+}
+
+function json_encode(jobj) {
+  var jstr = JSON.stringify(jobj);
+  return jstr;
+}
+
 function GetMetaData(key1, value1, key2) {
   var result = false;
   var select = sprintf("meta[%s=\"%s\"]", key1, value1);
@@ -1075,7 +1085,56 @@ class PChome股市 extends NewsBaseClass {
 //-----------------------------------------------------------------------------
 // Message Receiver
 //-----------------------------------------------------------------------------
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {    
+function SetClipboard(mode, info) {
+  if (mode == 0) {
+    ClipboardBuffer = sprintf("%s, <a href='%s'>%s</a>", info.Date, info.URL, info.Title);
+    document.execCommand('copy');
+  } else if (mode == 1) {
+    ClipboardBuffer = sprintf("<a href='%s'>%s</a>", info.URL, info.Title);
+    document.execCommand('copy');
+  }
+}
+
+function CallAPI(jobj, callback) {
+  var json_args = json_encode(jobj);
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", "https://www.dna64.com/TaiwanNewsClick/api.php?json="+json_args, true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4) {
+      callback(json_decode(xhr.responseText));
+    }
+  }
+  xhr.send();
+}
+
+function apiGetInfo(url, callback) {
+  var info = false;
+  var args = {};
+  args.Command = "GetInfo";
+  args.URL = url;
+  CallAPI(args, function(result) {
+    if (result.Status == "Success") {
+      info = result.Data;
+    }
+    callback(info);
+  });
+}
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  var info = false;
+  if (request.mode == 2) {
+    console.log("@TEST");
+    var args = {};
+    args.Command = "GetInfo";
+    args.URL = window.location.href;
+    CallAPI(args, function(result) {
+      console.log(result);
+      if (result.Status == "Success") {
+        info = result.Data;
+      }
+      sendResponse({farewell: "goodbye", info: info});
+    });
+  }
   //
   // Get Information from News Class
   //
@@ -1137,23 +1196,21 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   //
   // Generate HTML formated data then set to clipboard
   //
-  if (info !== false) {    
-    if (request.mode == 0) {
-      ClipboardBuffer = sprintf("%s, <a href='%s'>%s</a>", info.Date, info.URL, info.Title);
-      document.execCommand('copy');
-    } else if (request.mode == 1) {
-      ClipboardBuffer = sprintf("<a href='%s'>%s</a>", info.URL, info.Title);
-      document.execCommand('copy');
-    } else {      
-    }
-  } else {
-    alert('Info: Can\'t generate news link of the page'); 
-  }
-  //
-  // Sample Code
-  //
-  //console.log(sender.tab ? "from a content script:" + sender.tab.url : "from the extension");  
-  if (request.greeting == "hello") {
+  if (info != false) {
+    SetClipboard(request.mode, info);
     sendResponse({farewell: "goodbye", info: info});
-  }    
+  } else {
+    apiGetInfo(window.location.href, function(result) {
+      console.log(result);
+      if (result != false) {
+        info = result;
+        console.log(request.mode);
+        SetClipboard(request.mode, info);
+      } else {
+        alert('Info: Can\'t generate news link of the page'); 
+      }
+      sendResponse({farewell: "goodbye", info: info});
+    });
+    return true;  // Inform Chrome that we will make a delayed sendResponse
+  }
 });

@@ -6,13 +6,14 @@
 
 let eDateTitle = document.getElementById('id_date_title');
 let eOnlyTitle = document.getElementById('id_only_title');
-//let eChangeColor = document.getElementById('id_change_color');
+let eTest = document.getElementById('id_test');
 
 //-----------------------------------------------------------------------------
 // Override console.log through background page
 //-----------------------------------------------------------------------------
 function console () {
 }
+
 console.log = function(msg) {
   var bg = chrome.extension.getBackgroundPage();   // console of Background Page 
   if (bg != null) {
@@ -25,28 +26,8 @@ console.log = function(msg) {
 //-----------------------------------------------------------------------------
 console.log("@Popup:Loading");
 
-/*
-chrome.storage.sync.get('color', function(data) {
-  eChangeColor.style.backgroundColor = data.color;
-  eChangeColor.setAttribute('value', data.color);
-});
-
-eChangeColor.onclick = function(element) {
-  console.log("@eChangeColor");   
-  let color = element.target.value;
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    chrome.tabs.executeScript(
-      tabs[0].id,
-      {code: 'document.body.style.backgroundColor = "' + color + '";'}
-    );
-  });
-};
-*/
-
 eDateTitle.onclick = function(element) {
-  console.log("@date_title");
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    console.log("@date_title2");    
     var tab = tabs[0];
     chrome.tabs.sendMessage(tab.id, {greeting: "hello", mode: 0}, function(response) {
       console.log(response);
@@ -55,11 +36,18 @@ eDateTitle.onclick = function(element) {
 };
 
 eOnlyTitle.onclick = function(element) {
-  console.log("@only_title");
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    console.log("@only_title2");    
     var tab = tabs[0];
     chrome.tabs.sendMessage(tab.id, {greeting: "hello", mode: 1}, function(response) {
+      console.log(response);
+    });
+  });
+};
+
+eTest.onclick = function(element) {
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    var tab = tabs[0];
+    chrome.tabs.sendMessage(tab.id, {greeting: "hello", mode: 2}, function(response) {
       console.log(response);
     });
   });
