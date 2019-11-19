@@ -8,7 +8,7 @@ var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自�
                     "財訊", "TVBS", "COOL3C", "UDN", "CNYES", "CMoney", "Storm", "SETN", "BuzzOrange", "NewTalk", "BusinessWeekly", 
                     "中廣新聞網", "AppleDaily", "NextMag", "MoneyDJ", "BusinessNext", "IThome", "T客邦", "立場新聞", "xfastest", "東森新聞",
                     "ManagerToday", "必聞網", "科技產業資訊室", "Yahoo股市", "Yahoo新聞", "Yahoo理財", "MSN財經", "LEDInside", "EETTaiwan", 
-                    "康健雜誌", "太報", "PChome股市"];
+                    "康健雜誌", "太報", "PChome股市", "端傳媒"];
 var ClipboardBuffer = false;
 var DebugFlags = 0;
 
@@ -1071,6 +1071,36 @@ class PChome股市 extends NewsBaseClass {
           break;
         }
       }
+    }
+    if (date_string != false) {
+      info.Date = NormalizeDateString(date_string);      
+    } else {
+      info = false;
+    }
+
+    return info;
+  }
+}
+
+class 端傳媒 extends NewsBaseClass {
+  constructor() {
+    super();
+    this.site_name = "端傳媒";
+    this.domain_name = "theinitium.com";
+    this.title_break = "｜";
+  }
+  
+  GetInfo() {
+    var html;
+    var date_string = false;
+    var info = super.GetInfo();       // https://theinitium.com/article/20190709-notes-use-novel-technologies-protect-yourself/
+    var tag = "article";
+    var p1 = info.URL.indexOf(tag);
+    if (p1 != -1) {
+      p1 += tag.length + 1;
+      var p2 = info.URL.indexOf("-", p1);
+      var date_string = info.URL.substr(p1, 8);
+      date_string = date_string.substr(0,4) + "-" + date_string.substr(4,2) + "-" + date_string.substr(6,2)
     }
     if (date_string != false) {
       info.Date = NormalizeDateString(date_string);      
