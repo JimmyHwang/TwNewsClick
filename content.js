@@ -11,10 +11,17 @@ var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自�
                     "康健雜誌", "太報", "PChome股市", "端傳媒"];
 var ClipboardBuffer = false;
 var DebugFlags = 0;
+var ExtConfig = {};
+
+ExtConfigStartup();
 
 //-----------------------------------------------------------------------------
 // Common functions
 //-----------------------------------------------------------------------------
+function is_numeric(mixed_var) {  
+  return !isNaN(mixed_var * 1);  
+}
+
 function isset(_var){
   return !!_var; // converting to boolean.
 }
@@ -1150,20 +1157,100 @@ function apiGetInfo(url, callback) {
   });
 }
 
+function apiGetExtConfig(callback) {
+  var info = false;
+  var args = {};
+  args.Command = "GetExtConfig";
+  args.Mode = 0;
+  CallAPI(args, function(result) {
+    if (result.Status == "Success") {
+      info = result.Data;
+    }
+    callback(info);
+  });
+}
+
+function ExtConfigUpdate() {
+  console.log("ExtConfigUpdate");
+  apiGetExtConfig(function(result) {
+    var today  = new Date();
+    var data = {};
+    data = result;
+    data.UpdatedDate = today.toLocaleDateString("en-US"); // 9/17/2016
+    chrome.storage.local.set({"ExtConfig": data}, function() {
+      ExtConfig = result;
+    });
+  });
+}
+
+function ExtConfigStartup() {
+  console.log("ExtConfigStartup");
+  chrome.storage.local.get(['ExtConfig'], function(result) {
+    if (!("ExtConfig" in result)) {                     // Get from BackEnd if not exists in storage
+      ExtConfigUpdate();
+    } else {
+      ExtConfig = result.ExtConfig;
+      var today = new Date();
+      date_string = today.toLocaleDateString("en-US");  // 9/17/2016
+      if (ExtConfig.UpdatedDate != date_string) {       // Get from BackEnd if UpdatedDate not equal today
+        ExtConfigUpdate();
+      }
+      if (DebugFlags & 1) {
+        console.log(json_encode(ExtConfig));
+      }
+    }
+  });
+}
+
+function IsSkipSite(site_name) {
+  var st = false;
+  var p = ExtConfig.SkipSites.indexOf(site_name);
+  if (p != -1) {
+    st = true;    
+  }
+  return st;
+}
+
+function DateFormatChecker(date_string) {
+  var fields = date_string.split("-");
+  var data;
+  var st = false;
+  var count = 0;
+  if (fields.length == 3) {
+    for(var i=0; i<3; i++) {
+      data = fields[i];
+      if (is_numeric(data)) {
+        count++;
+        if (count == 3) {
+          st = true;
+        }
+      }
+    }
+  }
+  return st;
+}
+
+function SiteDataChecker(data) {
+  var st = false;
+  if (data.Site !== false && data.URL !== false && data.Title !== false && data.Date !== false) {
+    if (DateFormatChecker(data.Date) !== false) {
+      st = true;
+    }
+  }
+  return st;
+}
+
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   var info = false;
   if (request.mode == 2) {
-    console.log("@TEST");
-    var args = {};
-    args.Command = "GetInfo";
-    args.URL = window.location.href;
-    CallAPI(args, function(result) {
-      console.log(result);
-      if (result.Status == "Success") {
-        info = result.Data;
-      }
-      sendResponse({farewell: "goodbye", info: info});
-    });
+    if (DebugFlags & 1) {
+      console.log('ExtConfig Variable = ' + json_encode(ExtConfig));
+      chrome.storage.local.get(['ExtConfig'], function(result) {
+        console.log('ExtConfig Storage = ' + json_encode(result));
+      });
+    }
+    ExtConfigUpdate();
+    return true;
   }
   //
   // Get Information from News Class
@@ -1171,17 +1258,27 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   var info = false;    
   var data;
   for (let item of NewsSiteList) {
-    var nobj = eval("new " + item + "()");
-    if (nobj.Test()) {
-      data = nobj.GetInfo();
-      if (DebugFlags & 1) {
-        console.log(item);
-        console.log(data);
+    if (IsSkipSite(item)) {
+      console.log("Skip......"+item);
+      //
+      // We disable the site support in extension and replace by back-end supported
+      //
+    } else {
+      var nobj = eval("new " + item + "()");
+      if (nobj.Test()) {
+        data = nobj.GetInfo();
+        if (DebugFlags & 1) {
+          console.log("@"+item+"Class");
+          console.log(data);
+        }
+        if (SiteDataChecker(data)) {
+          if (DebugFlags & 1) {
+            console.log("@"+item+"Class_OK");
+          }
+          info = data;
+        }      
+        break;
       }
-      if (data.Site !== false && data.URL !== false && data.Title !== false && data.Date !== false) {
-        info = data;
-      }      
-      break;
     }
   }
   //
@@ -1204,7 +1301,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         console.log("@LdJsonClass");
         console.log(data);
       }
-      if (data.Site !== false && data.URL !== false && data.Title !== false && data.Date !== false) {
+      if (SiteDataChecker(data)) {
+        if (DebugFlags & 1) {
+          console.log("@LdJsonClass_OK");
+        }
         info = data;
       }      
     }
@@ -1219,7 +1319,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       console.log("@NewsBaseClass");
       console.log(data);
     }
-    if (data.Site !== false && data.URL !== false && data.Title !== false && data.Date !== false) {
+    if (SiteDataChecker(data)) {
+      if (DebugFlags & 1) {
+        console.log("@NewsBaseClass_OK");
+      }
       info = data;
     }
   }  
@@ -1230,6 +1333,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     SetClipboard(request.mode, info);
     sendResponse({farewell: "goodbye", info: info});
   } else {
+    if (DebugFlags & 1) {
+      console.log("BackEnd......"+window.location.href);
+    }
     apiGetInfo(window.location.href, function(result) {
       console.log(result);
       if (result != false) {

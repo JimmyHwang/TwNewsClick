@@ -6,7 +6,7 @@
 
 let eDateTitle = document.getElementById('id_date_title');
 let eOnlyTitle = document.getElementById('id_only_title');
-let eTest = document.getElementById('id_test');
+let eUpdate = document.getElementById('id_update');
 
 //-----------------------------------------------------------------------------
 // Override console.log through background page
@@ -44,7 +44,7 @@ eOnlyTitle.onclick = function(element) {
   });
 };
 
-eTest.onclick = function(element) {
+eUpdate.onclick = function(element) {
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     var tab = tabs[0];
     chrome.tabs.sendMessage(tab.id, {greeting: "hello", mode: 2}, function(response) {
