@@ -1232,9 +1232,11 @@ function DateFormatChecker(date_string) {
 
 function SiteDataChecker(data) {
   var st = false;
-  if (data.Site !== false && data.URL !== false && data.Title !== false && data.Date !== false) {
-    if (DateFormatChecker(data.Date) !== false) {
-      st = true;
+  if (data !== false) {
+    if (data.Site !== false && data.URL !== false && data.Title !== false && data.Date !== false) {
+      if (DateFormatChecker(data.Date) !== false) {
+        st = true;
+      }
     }
   }
   return st;
