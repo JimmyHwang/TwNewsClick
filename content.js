@@ -148,6 +148,28 @@ function GetDateFromLdJson() {
   return jobj.GetDate();
 }
 
+function GetDateFromSpan() {
+  var result = false;
+  var spanArray = document.getElementsByTagName('span');
+  for (var s=0; s<spanArray.length; s++) {
+    var spanText = spanArray[s].innerHTML;
+    var p1 = spanText.indexOf("/", 0);
+    var p2 = -1;
+    var p3 = -1;
+    if (p1 != -1 && p1 < 8) {
+      p2 = spanText.indexOf("/", p1+1);
+      if (p2 != -1) {
+        p3 = spanText.indexOf(":", p2+1);
+      }
+    }
+    if (p1 != -1 && p2 != -1 && p3 != -1) {
+      p3 = spanText.indexOf(" ", p2+1);
+      result = spanText.substring(0, p3);
+    }
+  }
+  return result;
+}
+
 //-----------------------------------------------------------------------------
 // Page functions
 //-----------------------------------------------------------------------------
@@ -215,6 +237,9 @@ class NewsBaseClass {
     }
     if (info.Date == false) {
       info.Date = GetDateFromLdJson();
+    }
+    if (info.Date == false) {
+      info.Date = GetDateFromSpan();    // for wealth.com.tw
     }
     if (info.Date != false) {
       info.Date = NormalizeDateString(info.Date);
