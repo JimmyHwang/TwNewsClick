@@ -1236,6 +1236,19 @@ function IsSkipSite(site_name) {
   return st;
 }
 
+function IsSkipHost() {
+  var st = false;
+  var url = window.location.host;
+  for (let i=0; i<ExtConfig.SkipHosts.length; i++) {
+    var host = ExtConfig.SkipHosts[i];
+    if (url.indexOf(host) != -1) {
+      st = true;    
+      break;
+    }
+  }
+  return st;
+}
+
 function DateFormatChecker(date_string) {
   var fields = date_string.split("-");
   var data;
@@ -1280,86 +1293,103 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     return true;
   }
   //
-  // Get Information from News Class
+  // Is skip hosts from plugin
   //
-  var info = false;    
-  var data;
-  for (let item of NewsSiteList) {
-    if (IsSkipSite(item)) {
-      console.log("Skip......"+item);
-      //
-      // We disable the site support in extension and replace by back-end supported
-      //
-    } else {
-      var nobj = eval("new " + item + "()");
-      if (nobj.Test()) {
-        data = nobj.GetInfo();
-        if (DebugFlags & 1) {
-          console.log("@"+item+"Class");
-          console.log(data);
-        }
-        if (SiteDataChecker(data)) {
+  if (IsSkipHost() == false) {
+    //
+    // Get Information from News Class
+    //
+    var info = false;    
+    var data;
+    for (let item of NewsSiteList) {
+      if (IsSkipSite(item)) {
+        console.log("Skip site......"+item);
+        //
+        // We disable the site support in extension and replace by back-end supported
+        //
+      } else {
+        var nobj = eval("new " + item + "()");
+        if (nobj.Test()) {
+          data = nobj.GetInfo();
           if (DebugFlags & 1) {
-            console.log("@"+item+"Class_OK");
+            console.log("@"+item+"Class");
+            console.log(data);
           }
-          info = data;
-        }      
-        break;
+          if (SiteDataChecker(data)) {
+            if (DebugFlags & 1) {
+              console.log("@"+item+"Class_OK");
+            }
+            info = data;
+          }      
+          break;
+        }
       }
     }
-  }
-  //
-  // Try ld+json Mode if nothing
-  //
-  if (info == false) {
-    var lobj = new LdJsonClass();
-    if (lobj.Object !== false) {
-      jobj = lobj.Object;
-      data = {};
-      data.Title = jobj.headline;
-      data.Date = NormalizeDateString(jobj.datePublished);
-      if (isset(jobj.url)) {
-        data.URL = jobj.url;
-      } else {
-        data.URL = window.location.href;
-      }      
-      data.Site = jobj.publisher.name;
+    //
+    // Try ld+json Mode if nothing
+    //
+    if (info == false) {
+      var lobj = new LdJsonClass();
+      if (lobj.Object !== false) {
+        jobj = lobj.Object;
+        data = {};
+        data.Title = jobj.headline;
+        data.Date = NormalizeDateString(jobj.datePublished);
+        if (isset(jobj.url)) {
+          data.URL = jobj.url;
+        } else {
+          data.URL = window.location.href;
+        }      
+        if (isset(jobj.publisher) && isset(jobj.publisher.name)) {
+          data.Site = jobj.publisher.name;
+          if (DebugFlags & 1) {
+            console.log("@LdJsonClass");
+            console.log(data);
+          }
+          if (SiteDataChecker(data)) {
+            if (DebugFlags & 1) {
+              console.log("@LdJsonClass_OK");
+            }
+            info = data;
+          }
+        }
+      }
+    }
+    //
+    // Try base Class if nothing
+    //
+    if (info == false) {
+      var nobj = new NewsBaseClass();
+      var data = nobj.GetInfo();
       if (DebugFlags & 1) {
-        console.log("@LdJsonClass");
+        console.log("@NewsBaseClass");
         console.log(data);
       }
       if (SiteDataChecker(data)) {
         if (DebugFlags & 1) {
-          console.log("@LdJsonClass_OK");
+          console.log("@NewsBaseClass_OK");
         }
         info = data;
-      }      
+      }
+    }  
+    //
+    // Generate HTML formated data then set to clipboard
+    //
+    if (info != false) {
+      SetClipboard(request.mode, info);
+      sendResponse({farewell: "goodbye", info: info});
     }
+  } else {
+    console.log("Skip host......"+window.location.host);
+    //
+    // We disable the host support in extension and replace by back-end supported
+    //
   }
+
   //
-  // Try base Class if nothing
+  // Get information from Back-End API when get nothing from plugin
   //
   if (info == false) {
-    var nobj = new NewsBaseClass();
-    var data = nobj.GetInfo();
-    if (DebugFlags & 1) {
-      console.log("@NewsBaseClass");
-      console.log(data);
-    }
-    if (SiteDataChecker(data)) {
-      if (DebugFlags & 1) {
-        console.log("@NewsBaseClass_OK");
-      }
-      info = data;
-    }
-  }  
-  //
-  // Generate HTML formated data then set to clipboard
-  //
-  if (info != false) {
-    SetClipboard(request.mode, info);
-    sendResponse({farewell: "goodbye", info: info});
-  } else {
     if (DebugFlags & 1) {
       console.log("BackEnd......"+window.location.href);
     }
