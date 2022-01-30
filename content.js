@@ -1393,7 +1393,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if (DebugFlags & 1) {
       console.log("BackEnd......"+window.location.href);
     }
-    apiGetInfo(window.location.href, function(result) {
+    apiGetInfo(encodeURIComponent(window.location.href), function(result) {
       console.log(result);
       if (result != false) {
         info = result;
