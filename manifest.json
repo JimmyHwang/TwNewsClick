@@ -2,7 +2,7 @@
     "name": "Taiwan News Click",
     "version": "2.5",
     "description": "An extension supports generate formatted Taiwan news link for paste to Google Docs",
-    "permissions": ["declarativeContent", "storage", "clipboardWrite", "clipboardRead"],
+    "permissions": ["declarativeContent", "storage", "clipboardWrite"],
     "options_page": "options.html",
     "background": {
       "service_worker": "background.js",

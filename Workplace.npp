@@ -1,0 +1,16 @@
+<NotepadPlus>
+    <Project name="TwNewsClick">
+        <File name="popup.js" />
+        <File name="background.js" />
+        <File name="content.js" />
+        <File name="options.js" />
+        <File name="script.js" />
+        <File name="sprintf.js" />
+        <Folder name="Conf">
+            <File name="manifest.json" />
+        </Folder>
+        <Folder name="Publish">
+            <File name="Publish\Notes.txt" />
+        </Folder>
+    </Project>
+</NotepadPlus>
