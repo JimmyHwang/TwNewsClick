@@ -5,10 +5,10 @@
     "permissions": ["declarativeContent", "storage", "clipboardWrite", "clipboardRead"],
     "options_page": "options.html",
     "background": {
-      "scripts": ["background.js"],
-      "persistent": false
+      "service_worker": "background.js",
+      "type": "module"
     },
-    "page_action": {
+    "action": {
       "default_title": "Taiwan News Click", 
       "default_popup": "popup.html",
       "default_icon": {
@@ -29,5 +29,5 @@
         "js": ["jquery-3.4.1.js", "sprintf.js", "content.js"], 
         "run_at": "document_end" 
         }],
-    "manifest_version": 2
+    "manifest_version": 3
   }
