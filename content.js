@@ -2,13 +2,7 @@
 // Notes:
 //    Can't use console.log() of background 
 //
-console.log("@Content:Loading");
 
-var NewsSiteList = ["中央通訊社", "經濟日報", "中時電子報", "自由電子報", "TechNews", "ETtoday", "NowNews", "BusinessToday", "工商時報", 
-                    "財訊", "TVBS", "COOL3C", "UDN", "CNYES", "CMoney", "Storm", "SETN", "BuzzOrange", "NewTalk", "BusinessWeekly", 
-                    "中廣新聞網", "AppleDaily", "NextMag", "MoneyDJ", "BusinessNext", "IThome", "T客邦", "立場新聞", "xfastest", "東森新聞",
-                    "ManagerToday", "必聞網", "科技產業資訊室", "Yahoo股市", "Yahoo新聞", "Yahoo理財", "MSN財經", "LEDInside", "EETTaiwan", 
-                    "康健雜誌", "太報", "PChome股市", "端傳媒"];
 var ClipboardBuffer = false;
 var DebugFlags = 0;
 var ExtConfig = {};
@@ -1301,14 +1295,14 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     //
     var info = false;    
     var data;
-    for (let item of NewsSiteList) {
+    for (let nobj of NewsSiteList) {
+      item = nobj.constructor.name;
       if (IsSkipSite(item)) {
         console.log("Skip site......"+item);
         //
         // We disable the site support in extension and replace by back-end supported
         //
       } else {
-        var nobj = eval("new " + item + "()");
         if (nobj.Test()) {
           data = nobj.GetInfo();
           if (DebugFlags & 1) {
@@ -1407,3 +1401,14 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     return true;  // Inform Chrome that we will make a delayed sendResponse
   }
 });
+
+var NewsSiteList = [new 中央通訊社(), new 經濟日報(), new 中時電子報(), new 自由電子報(), 
+                    new TechNews(), new ETtoday(), new NowNews(), new BusinessToday(), 
+                    new 工商時報(), new 財訊(), new TVBS(), new COOL3C(), new UDN(), new CNYES(), 
+                    new CMoney(), new Storm(), new SETN(), new BuzzOrange(), new NewTalk(), 
+                    new BusinessWeekly(), new 中廣新聞網(), new AppleDaily(), new NextMag(), 
+                    new MoneyDJ(), new BusinessNext(), new IThome(), new T客邦(), new 立場新聞(), 
+                    new xfastest(), new 東森新聞(), new ManagerToday(), new 必聞網(), 
+                    new 科技產業資訊室(), new Yahoo股市(), new Yahoo新聞(), new Yahoo理財(), 
+                    new MSN財經(), new LEDInside(), new EETTaiwan(), new 康健雜誌(), new 太報(), 
+                    new PChome股市(), new 端傳媒()];
